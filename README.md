@@ -1,40 +1,53 @@
-# Tonyapps_ProductLabels
+# Product Labels for Magento 2
 
-Show rule-driven badges on product listings and product pages. Magento Open Source provides catalog price rules, but it has no general product-label feature for promotional text such as “New”, “−20%”, “Low stock”, or “Free gift”.
+Show badges such as "New", "−20%" or "Free gift" on product listings and product pages, driven by rules you set once.
 
-## Scope and decisions
+Magento Open Source has catalog price rules, but no general way to put a promotional badge on a product. This module adds label rules that use the same product conditions as catalog price rules, so badges appear automatically on every product that matches.
 
-| Feature | Decision |
-|---|---|
-| Rule conditions | Reuse Magento's catalog-rule product condition builder. Conditions are evaluated against the catalog product, not cart contents. |
-| Badge content | Each rule has a short text label, foreground/background colors, sort order, active flag, and store-view scope. |
-| Display | Show all matching labels on category/search product cards and product detail pages. Lower sort order appears first. |
-| Rule conflict | No exclusivity: several rules may match and all render in configured order. |
-| Cache behavior | Labels depend on product data, active rule configuration, and store view. Rule saves clear the full-page and block HTML caches. |
-| Inventory | “Low stock” is supported only through product attributes that are available to catalog rules. Dynamic salable quantity and configurable child inventory are out of phase 1. |
-| Price | A displayed “−20%” is administrator-authored text; labels do not calculate or promise a discount. |
-| Security | Admin CRUD is ACL-protected and POST-only for mutations. Escape label text and validate CSS colors before output. |
+## Features
 
-## Phases
+- **Rule-driven badges**: choose which products get a label with Magento's familiar catalog-rule condition builder (attribute set, category, SKU, any attribute usable in catalog rules).
+- **Your text, your colors**: each label has short text (up to 80 characters), a background color and a text color.
+- **Everywhere shoppers browse**: labels show on category and search result product cards and on the product page.
+- **Several labels at once**: when more than one rule matches, all labels show, in the sort order you set.
+- **Per store view**: limit a rule to selected store views, or show it everywhere.
+- **Switch on and off**: activate or deactivate a rule without deleting it.
+- **Pages update by themselves**: saving or deleting a rule refreshes the page cache, so shoppers see the change straight away.
 
-1. **Rule engine and storefront:** catalog-rule conditions, scoped rule storage/admin editing, matching and ordered badges on listing and detail views, and focused unit tests.
-2. **Manual verification:** install/upgrade, create representative rules, inspect category/search and product pages, verify cache invalidation and multiple-label ordering.
+## How it works
 
-## 2026-10-30 review fixes
+1. In the admin, open **Content › Product Labels** and click **Add New Label Rule**.
+2. Enter the label text and colors, choose store views and sort order, and set the product conditions.
+3. Save. Matching products show the badge on category pages, search results and their product page.
 
-- A rule condition on an attribute that was later deleted no longer causes a 500 on every storefront product collection. Attribute codes that no longer exist are dropped before `addAttributeToSelect()`.
-- Condition attributes are added only to product-listing collections (the `catalog_block_product_list_collection` event), not to every frontend product collection such as the cart or cross-sells.
-- Active rules are loaded once per request instead of once per product. The `category_ids` condition still runs one cached core lookup per product.
+## Good to know
 
-## Install
+- Labels are text you write: a "−20%" badge doesn't calculate or guarantee a discount.
+- A rule needs at least one condition; a rule without conditions shows nowhere.
+- Conditions look at product data only, not cart contents.
+- "Low stock" labels work only through product attributes available to catalog rules; live salable quantity and configurable child stock are not used.
+- Colors are entered as hex codes (`#RRGGBB`).
+- Labels are not shown in product widgets, cart, or cross-sell/related blocks.
+- Built and tested on the Luma theme; Hyvä has not been checked.
+
+## Requirements
+
+- Magento Open Source 2.4.8
+- PHP 8.3 or 8.4
+- Magento modules: Catalog, CatalogRule
+
+## Installation
 
 ```sh
+composer require tonyapps/module-product-labels
 bin/magento module:enable Tonyapps_ProductLabels
 bin/magento setup:upgrade
 ```
 
-## Tests
+## Configuration
 
-```sh
-vendor/bin/phpunit -c dev/tests/unit/phpunit.xml.dist app/code/Tonyapps/ProductLabels/Test/Unit
-```
+- **Content › Product Labels**: create, edit and delete label rules (admin permission: *Product Labels*).
+
+## For developers
+
+Architecture, decisions, data model and tests are in [AGENTS.md](AGENTS.md).
