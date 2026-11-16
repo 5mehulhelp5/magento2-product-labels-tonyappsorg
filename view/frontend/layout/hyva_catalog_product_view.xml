@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<!-- Hyvä only (hyva_ handles load on Hyvä themes): its product-info template renders named children only, so the
+     labels go under the title, which renders its children. Hyvä shows product.info.title from md up and
+     page.main.title below md, so each gets one copy. -->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <move element="tonyapps.product.labels.detail" destination="product.info.title"/>
+        <referenceBlock name="page.main.title">
+            <block class="Tonyapps\ProductLabels\Block\ProductLabels" name="tonyapps.product.labels.mobile" template="Tonyapps_ProductLabels::product/labels.phtml">
+                <arguments>
+                    <argument name="css_class" xsi:type="string">flex justify-center md:hidden</argument>
+                </arguments>
+            </block>
+        </referenceBlock>
+    </body>
+</page>

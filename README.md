@@ -27,14 +27,14 @@ Magento Open Source has catalog price rules, but no general way to put a promoti
 - Conditions look at product data only, not cart contents.
 - "Low stock" labels work only through product attributes available to catalog rules; live salable quantity and configurable child stock are not used.
 - Colors are entered as hex codes (`#RRGGBB`).
-- Labels are not shown in product widgets, cart, or cross-sell/related blocks.
-- Built and tested on the Luma theme; Hyvä has not been checked.
+- Labels are not shown in product widgets or the cart. On Luma they are not shown in cross-sell, related or up-sell blocks either; on Hyvä, related and up-sell product sliders show them.
 
 ## Requirements
 
 - Magento Open Source 2.4.8
 - PHP 8.3 or 8.4
 - Magento modules: Catalog, CatalogRule
+- Works with the Luma and Hyvä themes
 
 ## Installation
 

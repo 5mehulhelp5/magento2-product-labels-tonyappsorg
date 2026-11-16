@@ -31,8 +31,8 @@ Why it exists: Magento Open Source provides catalog price rules, but it has no g
 - Admin: menu **Content > Product Labels** (`Tonyapps_ProductLabels::rules`, route `tonyapps_productlabels/rule/index`). Controllers in `Controller/Adminhtml/Rule/` extend `AbstractRule` (ACL + `cleanCaches()` → `cleanType('block_html')`, `cleanType('full_page')`): `Index`, `Edit`, `NewAction` (GET); `Save`, `Delete`, `NewConditionHtml` (POST). Grid is a plain table (`Block\Adminhtml\Rule\Index`, `rule/index.phtml`: Name, Badge, Status, Sort Order, Edit/Delete with JS confirm); form `Block\Adminhtml\Rule\Form`, `rule/form.phtml` ("Save Label Rule").
 - Model: `Model\Rule` (catalog-rule conditions; `getStoreIds()`; `beforeSave()`), resource `Model\ResourceModel\Rule` + `Rule\Collection` (`addActiveFilter()`), `Model\ColorValidator` (`/^#[0-9A-Fa-f]{6}$/`, uppercased; otherwise null).
 - Matching: `Model\RuleMatcher::matches()` — store filter (empty `store_ids` = all), then rule must have at least one condition and `validate($product)`. `Model\LabelProvider` loads active rules once per request (`getRules()` memoised), returns `label`/`background_color`/`text_color` per matching rule; `getConditionAttributeCodes()` collects attributes used in conditions.
-- Listing: `Plugin\Catalog\Product\ListProductLabelsPlugin::afterGetProductDetailsHtml()` on `Magento\Catalog\Block\Product\ListProduct` (frontend `di.xml`) appends badges to each product card. `Observer\AddConditionAttributesObserver` on `catalog_block_product_list_collection` (frontend `events.xml`) adds condition attributes to the listing collection, dropping codes that no longer exist.
-- Product page: `Block\ProductLabels` + `product/labels.phtml` in `product.info.main` before `product.info.price` (`catalog_product_view.xml`). CSS `css/product-labels.css` added in `default.xml`.
+- Listing: `Plugin\Catalog\Product\ListProductLabelsPlugin::afterGetProductDetailsHtml()` on `Magento\Catalog\Block\Product\AbstractProduct` (frontend `di.xml`) appends badges to each product card; it acts only on `ListProduct` (Luma) and on the block named `product_list_item` (Hyvä renders every listing item with that `Product\View` block). `Observer\AddConditionAttributesObserver` on `catalog_block_product_list_collection` (frontend `events.xml`) adds condition attributes to the listing collection, dropping codes that no longer exist.
+- Product page: `Block\ProductLabels` + `product/labels.phtml` in `product.info.main` before `product.info.price` (`catalog_product_view.xml`). CSS `css/product-labels.css` added in `default.xml` (sizes in px: Luma and Hyvä root font sizes differ). Hyvä: `hyva_catalog_product_view.xml` moves the block into `product.info.title` (Hyvä's `product-info.phtml` renders named children only; the title renders all its children) and adds a second copy, `tonyapps.product.labels.mobile`, to `page.main.title` with `css_class` `flex justify-center md:hidden`, because Hyvä shows one title per breakpoint. `css_class` goes on a wrapper div: Hyvä's Tailwind utilities sit in a CSS `@layer` and lose to this module's unlayered CSS on the same element.
 - Empty `ProductLabels/Adminhtml/` directory at module root (no files).
 
 ## Data model
@@ -55,7 +55,7 @@ See Scope and decisions. Plus:
 - Labels render only on `ListProduct`-based listings (category, search) and the product page; not in widgets, related/up-sell/cross-sell blocks or cart.
 - A rule with no conditions never matches.
 - Admin form not yet verified by hand (Status).
-- Hyvä not checked.
+- Hyvä: supported since 2026-11-16 (see Architecture). On Hyvä, related/up-sell sliders also get badges, because Hyvä renders them with the same `product_list_item` block as the category listing.
 
 ## Tests
 
@@ -63,7 +63,7 @@ See Scope and decisions. Plus:
 vendor/bin/phpunit -c dev/tests/unit/phpunit.xml.dist app/code/Tonyapps/ProductLabels/Test/Unit
 ```
 
-Unit tests: ColorValidator, LabelProvider, RuleMatcher, AddConditionAttributesObserver, layout location. Playwright: `../e2e/tests/product-labels.spec.js`.
+Unit tests: ColorValidator, LabelProvider, RuleMatcher, AddConditionAttributesObserver, ListProductLabelsPlugin, layout location (incl. the Hyvä move). Playwright: `../e2e/tests/product-labels.spec.js` (Luma) and `../e2e/tests/hyva-product-labels.spec.js` (Hyvä store view, `hyva.riskified.ddev.site`).
 
 ## Operations
 
@@ -74,6 +74,7 @@ bin/magento setup:upgrade
 
 ## Change history
 
+- **2026-11-16** — Hyvä support: listing plugin moved from `ListProduct` to `AbstractProduct` (limited to listing items), `hyva_catalog_product_view.xml` places the product-page labels under the title, label CSS in px. Luma unchanged.
 - **2026-11-16** — Released as free software under GPL-3.0-or-later (owner decision): `LICENSE` added,
   `composer.json` license changed from `proprietary`, License section in the README.
 - **2026-10-30 review fixes**:
