@@ -74,6 +74,8 @@ bin/magento setup:upgrade
 
 ## Change history
 
+- **2026-11-16** — Released as free software under GPL-3.0-or-later (owner decision): `LICENSE` added,
+  `composer.json` license changed from `proprietary`, License section in the README.
 - **2026-10-30 review fixes**:
   - A rule condition on an attribute that was later deleted no longer causes a 500 on every storefront product collection. Attribute codes that no longer exist are dropped before `addAttributeToSelect()`.
   - Condition attributes are added only to product-listing collections (the `catalog_block_product_list_collection` event), not to every frontend product collection such as the cart or cross-sells.
